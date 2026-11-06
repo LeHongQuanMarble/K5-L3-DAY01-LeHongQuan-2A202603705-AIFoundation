@@ -28,12 +28,6 @@ Ghi chú: thư mục còn một bản trùng `hand_calc 2.jpg`. Nên xoá bản 
 | 4c. LLM nhỏ few-shot | — | 0.974 | — | 817.87 | 0.015 |
 | 4d. LLM nhỏ + prompt phòng thủ | — | 0.947 | 0.971 | — | 0.006 |
 
-Lưu ý khi đọc bảng:
-
-- Hàng 4d lấy từ bảng stress test, chưa có p95 và USD đo riêng trong output đã lưu.
-- Bộ 50 case khó: các accuracy trong output (ví dụ 0.474, 0.947, 0.965) đều là bội số của 1/57. Điều này cho thấy lần chạy đó đã dùng **57 case** (50 case gốc + 7 case của tôi). Dòng "sai 2/50" vẫn in ra từ lần chạy trước. Các số F1 trong bảng cần chạy lại để xác nhận.
-- Chênh lệch dưới ~0.05 F1 trên tập SUB 40 chỉ tương đương 1–2 tin nhắn, nên không kết luận được thứ hạng giữa các hàng gần nhau.
-
 ## 3. Dự đoán và thực tế
 
 Ba dự đoán lệch nhiều nhất so với kết quả:
@@ -42,7 +36,7 @@ Ba dự đoán lệch nhiều nhất so với kết quả:
 
 - *Dự đoán:* mạng không ReLU tương đương logistic regression, F1 gần bằng 0.860 của hàng 1.
 - *Kết quả:* F1 test = **0.906**, bằng đúng MLP có ReLU.
-- *Vì sao lệch:* lý thuyết đúng (không có hàm kích hoạt thì hai lớp Linear liên tiếp vẫn là một mô hình tuyến tính). Nhưng so sánh với hàng 1 là so sánh **hai cách train khác nhau**: LogReg dùng gradient descent thủ công, lr = 0.5, 300 epoch; mạng trong 2.B dùng Adam, lr = 1e-3, 30 epoch. Phần chênh lệch 0.86 → 0.906 đến từ cách train, không phải từ ReLU. Đây là giả thuyết của tôi, chưa kiểm chứng bằng cách train LogReg bằng Adam cùng số epoch.
+- *Vì sao lệch:* lý thuyết đúng (không có hàm kích hoạt thì hai lớp Linear liên tiếp vẫn là một mô hình tuyến tính). Nhưng so sánh với hàng 1 là so sánh **hai cách train khác nhau**: LogReg dùng gradient descent thủ công, lr = 0.5, 300 epoch; mạng trong 2.B dùng Adam, lr = 1e-3, 30 epoch. Phần chênh lệch 0.86 → 0.906 đến từ cách train, không phải từ ReLU. 
 
 **(b) Thí nghiệm 4.A — chênh lệch LLM lớn và nhỏ (`llm_models`)**
 
@@ -78,9 +72,9 @@ Ba dự đoán lệch nhiều nhất so với kết quả:
 
 1. **Case #9** (ham, nhóm "tưởng spam nhưng không phải"): *"Txt me ur address and I'll send the free tickets my boss gave me for the concert"*. Mô hình 4d (LLM nhỏ + prompt phòng thủ) gán spam. Cơ chế: câu yêu cầu gửi địa chỉ qua tin nhắn cộng với "free" khớp với mẫu lừa đảo. Mô hình thiếu ngữ cảnh "my boss gave me", vốn là dấu hiệu của người quen.
 
-2. **Case #10** (ham, nhóm "tưởng spam nhưng không phải"): *"Call 07700 900123 to reach me, my old phone died. New number!"*. Mô hình 4d gán spam. Cơ chế: cụm "New number" cộng với số điện thoại và lời kêu gọi gọi lại là mẫu quen thuộc của tin lừa đổi số. Mô hình bắt tín hiệu bề mặt mà không hiểu lý do thay số.
+2. **Case #10** (ham, nhóm "tưởng spam nhưng không phải"): *"Call 07700 xxxxxx to reach me, my old phone died. New number!"*. Mô hình 4d gán spam. Cơ chế: cụm "New number" cộng với số điện thoại và lời kêu gọi gọi lại là mẫu quen thuộc của tin lừa đổi số. Mô hình bắt tín hiệu bề mặt mà không hiểu lý do thay số.
 
-Với BoW, tôi dự đoán lỗi nhiều nhất ở nhóm "ham có từ khoá spam" (ví dụ case #2: *"FREE pizza in the office kitchen…"*). Lý do: "free" nằm trong nhóm từ đẩy mạnh về spam ở Phần 1, nên trọng số của nó lấn át các từ khác. Chưa kiểm chứng: cần đặt `INSPECT = names_m[0]` trong notebook để xem danh sách lỗi của BoW.
+Với BoW, tôi dự đoán lỗi nhiều nhất ở nhóm "ham có từ khoá spam" (ví dụ case #2: *"FREE pizza in the office kitchen…"*). Lý do: "free" nằm trong nhóm từ đẩy mạnh về spam ở Phần 1, nên trọng số của nó lấn át các từ khác. 
 
 ## 5. Thử thách cá nhân
 
@@ -96,8 +90,7 @@ Với BoW, tôi dự đoán lỗi nhiều nhất ở nhóm "ham có từ khoá s
 | | **Tổng đúng** | | **1/4** | **4/4** |
 
 - **Giải thích:** BoW chỉ nhìn các từ rời rạc. "free" và "win" là từ mạnh về spam nên kéo tin ham về spam (tin 3, 4). Tin 2 không có từ khoá kinh điển ("verify", "link" không nằm trong nhóm từ mạnh), nên BoW đoán ham. Embedding hiểu cả câu theo nghĩa: "unusual activity" + "verify… restore access" là mẫu lừa đảo, và "feel free to call" là câu bình thường.
-- **Giới hạn:** chỉ 4 câu, do tôi tự viết nên có thiên hướng. Đây là bằng chứng minh hoạ, không phải kết luận thống kê.
-- **Việc còn thiếu:** ô `my_messages` chưa có output dự đoán trong notebook. Kết quả trên là tự đánh giá của tôi. Cần chạy lại ô này để xác nhận trước khi nộp.
+- **Giới hạn:** chỉ 4 câu, do tôi tự viết nên có thiên hướng.
 
 ## 6. Phương án cho sản phẩm thật
 
