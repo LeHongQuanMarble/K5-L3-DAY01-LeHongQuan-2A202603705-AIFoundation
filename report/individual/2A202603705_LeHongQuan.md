@@ -8,9 +8,9 @@
 
 | Tệp | Có? |
 | --- | --- |
-| [`day01_lab.ipynb`](day01_lab.ipynb) — notebook đã chạy, còn output | Yes |
-| [`lab1_report.json`](lab1_report.json) — do ô "Báo cáo cuối" sinh ra | Yes |
-| [`hand_calc.jpg`](hand_calc.jpg) — ảnh tính tay có các bước | Yes |
+| [`day01_lab.ipynb`](day01_lab.ipynb) — notebook đã chạy, còn output | ☑ |
+| [`lab1_report.json`](lab1_report.json) — do ô "Báo cáo cuối" sinh ra | ☑ |
+| [`hand_calc.jpg`](hand_calc.jpg) — ảnh tính tay có các bước | ☑ |
 
 Ghi chú: thư mục còn một bản trùng `hand_calc 2.jpg`. Nên xoá bản thừa trước khi nộp để tránh nhầm.
 
